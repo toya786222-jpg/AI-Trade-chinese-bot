@@ -1,0 +1,270 @@
+============================================
+SUPABASE API ENDPOINTS - Complete Map
+Chinese Signals AI BOT PRO
+============================================
+
+============================================
+1. AUTHENTICATION API
+============================================
+
+Base URL: https://[PROJECT_REF].supabase.co/auth/v1
+
+POST /auth/v1/token
+  Body: { email, password }
+  Body: { email, password, data: {...} }  (signup)
+  Response: { access_token, refresh_token, user, expires_in }
+  Used for: Login, Signup
+
+POST /auth/v1/logout
+  Headers: Authorization: Bearer [access_token]
+  Body: { scope: "global" }
+  Used for: Logout
+
+GET /auth/v1/user
+  Headers: Authorization: Bearer [access_token]
+  Response: { user: { id, email, ... } }
+  Used for: Get current user
+
+PUT /auth/v1/user
+  Headers: Authorization: Bearer [access_token]
+  Body: { email, password, data: {...} }
+  Used for: Update user profile
+
+POST /auth/v1/otp
+  Body: { email, type: "signup"|"magiclink"|"recovery" }
+  Body: { phone, type: "sms" }
+  Used for: Send OTP
+
+POST /auth/v1/verify
+  Body: { type, token, email, phone }
+  Used for: Verify OTP
+
+POST /auth/v1/recover
+  Body: { email }
+  Used for: Password reset
+
+GET /auth/v1/reauthenticate
+  Headers: Authorization: Bearer [access_token]
+  Used for: Re-authenticate user
+
+============================================
+2. DATABASE API (PostgREST)
+============================================
+
+Base URL: https://[PROJECT_REF].supabase.co/rest/v1
+Headers: Authorization: Bearer [anon_key]
+
+--------------------------------------------
+LICENSES TABLE
+--------------------------------------------
+
+GET /rest/v1/licenses
+  Query: ?select=*&order=created_at.desc
+  Used for: Get all licenses (admin)
+
+GET /rest/v1/licenses
+  Query: ?select=*&key=eq.[KEY]&status=eq.active
+  Used for: Validate license key
+
+POST /rest/v1/licenses
+  Body: {
+    license_key: "XXXX-XXXX-XXXX-XXXX",
+    user_name: "string",
+    device_limit: 1|2|5|10|0,
+    expiry_date: "ISO_DATE" (nullable),
+    status: "active"|"expired"|"blocked",
+    tier: "standard"|"pro"|"pro_max"
+  }
+  Used for: Create license (admin)
+
+PATCH /rest/v1/licenses
+  Query: ?id=eq.[LICENSE_ID]
+  Body: { status, tier, device_ids, device_limit, ... }
+  Used for: Update license (admin)
+
+DELETE /rest/v1/licenses
+  Query: ?id=eq.[LICENSE_ID]
+  Used for: Delete license (admin)
+
+--------------------------------------------
+PRO_MAX_REQUESTS TABLE
+--------------------------------------------
+
+GET /rest/v1/pro_max_requests
+  Query: ?select=*&order=created_at.desc
+  Used for: Get all upgrade requests (admin)
+
+POST /rest/v1/pro_max_requests
+  Body: {
+    license_key: "XXXX-XXXX-XXXX-XXXX",
+    user_name: "string",
+    email: "string",
+    telegram_username: "string",
+    trader_id: "string",
+    screenshot_url: "string" (nullable),
+    status: "pending"|"approved"|"rejected"
+  }
+  Used for: Submit upgrade request
+
+DELETE /rest/v1/pro_max_requests
+  Query: ?id=eq.[REQUEST_ID]
+  Used for: Delete upgrade request (admin)
+
+--------------------------------------------
+USERS TABLE
+--------------------------------------------
+
+GET /rest/v1/users
+  Query: ?select=*&id=eq.[USER_ID]
+  Used for: Get user profile
+
+PATCH /rest/v1/users
+  Query: ?id=eq.[USER_ID]
+  Body: { full_name, avatar_url, tier, license_id }
+  Used for: Update user profile
+
+--------------------------------------------
+SIGNALS TABLE
+--------------------------------------------
+
+GET /rest/v1/signals
+  Query: ?select=*&order=created_at.desc&limit=10
+  Used for: Get recent signals
+
+GET /rest/v1/signals
+  Query: ?select=*&pair=eq.[PAIR]&result=pending
+  Used for: Get active signals for pair
+
+--------------------------------------------
+PERFORMANCE TABLE
+--------------------------------------------
+
+GET /rest/v1/performance
+  Query: ?select=*&user_id=eq.[USER_ID]&order=created_at.desc&limit=1
+  Used for: Get user performance stats
+
+--------------------------------------------
+HISTORY TABLE
+--------------------------------------------
+
+GET /rest/v1/history
+  Query: ?select=*,signals(*)&user_id=eq.[USER_ID]&order=created_at.desc&limit=50
+  Used for: Get user signal history
+
+--------------------------------------------
+ADMIN_SETTINGS TABLE
+--------------------------------------------
+
+GET /rest/v1/admin_settings
+  Query: ?select=*&setting_key=eq.[KEY]
+  Used for: Get admin setting
+
+PATCH /rest/v1/admin_settings
+  Query: ?setting_key=eq.[KEY]
+  Body: { setting_value: {...} }
+  Used for: Update admin setting
+
+============================================
+3. RPC FUNCTIONS (Stored Procedures)
+============================================
+
+POST /rest/v1/rpc/validate_license
+  Body: { p_key: "XXXX-XXXX-XXXX-XXXX", p_device_id: "uuid" }
+  Response: { is_valid: boolean, tier: string, license_id: uuid }
+  Used for: Validate license key (server-side)
+
+POST /rest/v1/rpc/activate_license
+  Body: { p_key: "XXXX-XXXX-XXXX-XXXX", p_device_id: "uuid" }
+  Response: { success: boolean, tier: string, message: string }
+  Used for: Activate license (server-side)
+
+POST /rest/v1/rpc/has_role
+  Body: { _user_id: "uuid", _role: "admin" }
+  Response: boolean
+  Used for: Check if user has admin role
+
+POST /rest/v1/rpc/claim_admin_if_none
+  Body: {}
+  Response: { ok: boolean, error: string }
+  Used for: First-time admin setup
+
+POST /rest/v1/rpc/approve_pro_max_request
+  Body: { p_request_id: "uuid" }
+  Response: { ok: boolean, error: string }
+  Used for: Approve PRO MAX upgrade request
+
+POST /rest/v1/rpc/reject_pro_max_request
+  Body: { p_request_id: "uuid" }
+  Response: { ok: boolean, error: string }
+  Used for: Reject PRO MAX upgrade request
+
+============================================
+4. STORAGE API
+============================================
+
+Base URL: https://[PROJECT_REF].supabase.co/storage/v1
+
+POST /storage/v1/object/promax-screenshots/[FILENAME]
+  Body: File data
+  Used for: Upload balance screenshot
+
+GET /storage/v1/object/sign/promax-screenshots/[FILENAME]
+  Query: ?expiresIn=1800
+  Response: { signedUrl: "https://..." }
+  Used for: Get signed URL for screenshot
+
+DELETE /storage/v1/object/promax-screenshots/[FILENAME]
+  Used for: Delete screenshot
+
+============================================
+5. REALTIME API (WebSocket)
+============================================
+
+Connection: wss://[PROJECT_REF].supabase.co/realtime/v1/websocket
+Protocol: Phoenix Channels
+
+Subscribe to: licenses changes
+Subscribe to: signals changes
+Subscribe to: pro_max_requests changes
+
+Used for: Real-time updates on license/signal changes
+
+============================================
+6. EXTERNAL APIs
+============================================
+
+--------------------------------------------
+TINYBIRD ANALYTICS
+--------------------------------------------
+
+POST https://api.tinybird.co/v0/events
+  Query: ?name=analytics_events&token=[TINYBIRD_TOKEN]
+  Body: {
+    timestamp: "ISO_DATE",
+    action: "page_hit"|"web_vital",
+    version: "1",
+    session_id: "uuid",
+    payload: { ... }
+  }
+  Used for: Track page views and web vitals
+
+--------------------------------------------
+CLOUDFLARE R2 (Image Storage)
+--------------------------------------------
+
+Base URL: https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev
+Path: /[PROJECT_ID]/[ASSET_ID]/[FILENAME]
+Used for: Store and serve images (logo, screenshots)
+
+Assets:
+  - dashboard-logo.jpg: e1086afc-5004-4e35-bd9f-a34971cc60df
+  - quotex-logo.png: d4e3d272-37ab-4373-a48f-fdb1bc1df774
+
+--------------------------------------------
+LOVABLE ASSETS (CDN)
+--------------------------------------------
+
+Base URL: https://[PROJECT_ID].lovable.app/__l5e/assets-v1/[ASSET_ID]/[FILENAME]
+Used for: Serve static assets during development
+
+Project ID: 9a326b83-6a63-44ef-a169-cd19dc2734ce

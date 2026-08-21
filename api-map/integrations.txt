@@ -1,0 +1,172 @@
+============================================
+INTEGRATIONS MAP
+Chinese Signals AI BOT PRO
+============================================
+
+============================================
+1. SUPABASE (Primary Backend)
+============================================
+
+Project URL: https://[YOUR_PROJECT_REF].supabase.co
+Anon Key: [YOUR_ANON_KEY]
+Service Role Key: [YOUR_SERVICE_ROLE_KEY] (NEVER expose to frontend)
+
+Features Used:
+  ✅ Authentication (Email/Password, OTP)
+  ✅ PostgreSQL Database
+  ✅ Row Level Security (RLS)
+  ✅ Storage (promax-screenshots bucket)
+  ✅ Realtime (WebSocket subscriptions)
+  ✅ Edge Functions (RPC calls)
+
+Tables:
+  - licenses
+  - pro_max_requests
+  - users
+  - signals
+  - performance
+  - history
+  - admin_settings
+
+Storage Buckets:
+  - promax-screenshots (PRO MAX upgrade screenshots)
+
+RPC Functions:
+  - validate_license(p_key, p_device_id)
+  - activate_license(p_key, p_device_id)
+  - has_role(_user_id, _role)
+  - claim_admin_if_none()
+  - approve_pro_max_request(p_request_id)
+  - reject_pro_max_request(p_request_id)
+
+============================================
+2. VERCEL (Frontend Hosting)
+============================================
+
+Project: chinesesignals-updated
+URL: https://chinesesignals-updated.vercel.app
+Custom Domain: chinesesignalsbotpro.com
+
+Build Command: npm run build
+Output Directory: dist
+Framework: Vite + React
+
+Environment Variables:
+  VITE_SUPABASE_URL
+  VITE_SUPABASE_ANON_KEY
+  VITE_TINYBIRD_TOKEN (optional)
+
+============================================
+3. CLOUDFLARE R2 (Image Storage)
+============================================
+
+Public URL: https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev
+Project ID: 9a326b83-6a63-44ef-a169-cd19dc2734ce
+
+Stored Assets:
+  - dashboard-logo.jpg (Asset ID: e1086afc-5004-4e35-bd9f-a34971cc60df)
+  - quotex-logo.png (Asset ID: d4e3d272-37ab-4373-a48f-fdb1bc1df774)
+
+Usage:
+  - Dashboard logo: /__l5e/assets-v1/e1086afc-.../dashboard-logo.jpg
+  - Quotex logo: /__l5e/assets-v1/d4e3d272-.../quotex-logo.png
+  - Country flags: https://flagcdn.com/w40/{country_code}.png
+
+============================================
+4. TINYBIRD (Analytics)
+============================================
+
+API URL: https://api.tinybird.co/v0/events
+Datasource: analytics_events
+Proxy URL: /~api/analytics
+
+Events Tracked:
+  - page_hit (page views)
+  - web_vital (FCP, CLS, INP, LCP, TTFB)
+
+Privacy:
+  - Masks: passwords, tokens, emails, phones, addresses
+  - Session tracking via UUID
+  - Country detection via timezone
+
+============================================
+5. GOOGLE FONTS
+============================================
+
+Fonts:
+  - Sora (600, 700, 800) → Display/Headings
+  - Manrope (400, 500, 600, 700) → Body text
+
+URL: https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap
+
+============================================
+6. WHATSAPP (Support)
+============================================
+
+Support Number: +92 313 348 8621
+Direct Chat: https://wa.me/923133488621
+Channel: https://whatsapp.com/channel/0029Vb4wRJBBadmUDIOh5A1E
+
+============================================
+7. TELEGRAM (Official Channel)
+============================================
+
+Bot/Channel: @ChineseSignalsBot
+URL: https://t.me/ChineseSignalsBot
+
+============================================
+8. FLAGCDN (Country Flags)
+============================================
+
+URL Pattern: https://flagcdn.com/w40/{country_code}.png
+Country Codes: eu, us, gb, jp, au, ca, nz, ch, sg, mx, za, tr, br, ar, in, id, pk, bd, co
+
+Used for: Currency pair flags in dashboard
+
+============================================
+9. QUOTEX (Trading Platform)
+============================================
+
+Integration: Indirect (signals for Quotex trading)
+Logo: quotex-logo.png stored in Cloudflare R2
+Supported Markets:
+  - OTC Markets (Over The Counter)
+  - Live Markets (Real market data)
+
+Currency Pairs (OTC):
+  - USD/ARS, USD/INR, USD/IDR, USD/PKR, USD/BRL
+  - USD/BDT, USD/COP, NZD/CAD, NZD/CHF, CAD/CHF
+
+Currency Pairs (Live):
+  - EUR/USD, GBP/USD, USD/JPY, AUD/USD, USD/CAD
+  - NZD/USD, USD/CHF, EUR/GBP, EUR/JPY, GBP/JPY
+  - AUD/JPY, AUD/CAD, AUD/CHF, AUD/NZD, CAD/JPY
+  - CHF/JPY, EUR/AUD, EUR/CAD, EUR/CHF, EUR/NZD
+  - GBP/AUD, GBP/CAD, GBP/CHF, GBP/NZD, NZD/CAD
+  - NZD/CHF, NZD/JPY, USD/SGD, USD/MXN, USD/ZAR
+  - USD/TRY, USD/BRL
+
+Timeframes:
+  - Standard: 5s, 10s, 30s
+  - Pro: 5s, 10s, 15s, 30s, 45s, 1min
+  - Pro Max: 1min, 2min, 3min, 5min, 10min, 15min, 30min
+
+============================================
+10. LOVABLE (AI Coding Platform)
+============================================
+
+Formerly: GPT Engineer
+URL: https://lovable.dev
+Project ID: 9a326b83-6a63-44ef-a169-cd19dc2734ce
+
+Note: Account suspended, source code lost
+Assets still served from: /__l5e/assets-v1/
+
+============================================
+11. GOOGLE SEARCH CONSOLE
+============================================
+
+Verification Code: WMAU98FisrgQJrcbJbphKo0iMCG2ON_i0q5ba_TJ9hE
+Status: Verified
+
+============================================

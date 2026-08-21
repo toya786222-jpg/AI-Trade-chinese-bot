@@ -1,0 +1,199 @@
+============================================
+FRONTEND API CALLS - Complete List
+Chinese Signals AI BOT PRO
+============================================
+
+============================================
+LICENSE SYSTEM
+============================================
+
+1. VALIDATE LICENSE KEY
+   File: src/lib/license.ts
+   Function: activateLicense(key)
+   Flow:
+     1. Client validates format: /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/
+     2. Get device ID from localStorage or generate new
+     3. Call Supabase RPC: validate_license(p_key, p_device_id)
+     4. Store key + tier in localStorage
+   Storage Keys:
+     - cs_licence_key → License key string
+     - cs_licence_tier → Tier (standard/pro/pro_max)
+     - cs_device_id → UUID device identifier
+
+2. VERIFY LICENSE (on page load)
+   File: src/lib/license.ts
+   Function: verifyLicense()
+   Flow:
+     1. Read key from localStorage
+     2. If no key → return false
+     3. Call Supabase RPC: validate_license(p_key, p_device_id)
+     4. If invalid → clear localStorage, return false
+     5. If valid → return true
+
+3. GET STORED TIER
+   File: src/lib/license.ts
+   Function: getStoredTier()
+   Returns: "standard" | "pro" | "pro_max"
+
+============================================
+SUPABASE CLIENT INITIALIZATION
+============================================
+
+File: src/lib/supabase.ts
+Function: createClient(url, anonKey, options)
+  Options:
+    auth:
+      autoRefreshToken: true
+      persistSession: true
+      detectSessionInUrl: true
+    realtime:
+      params:
+        eventsPerSecond: 10
+
+============================================
+AUTHENTICATION
+============================================
+
+4. SIGN IN WITH PASSWORD
+   File: src/lib/supabase.ts (via @supabase/auth-js)
+   Function: supabase.auth.signInWithPassword({ email, password })
+   Response: { data: { user, session }, error }
+   Used in: Admin panel login
+
+5. SIGN UP
+   Function: supabase.auth.signUp({ email, password, options: { emailRedirectTo } })
+   Response: { data: { user, session }, error }
+   Used in: Admin panel signup
+
+6. GET SESSION
+   Function: supabase.auth.getSession()
+   Response: { data: { session }, error }
+   Used in: Admin panel session restore
+
+7. ON AUTH STATE CHANGE
+   Function: supabase.auth.onAuthStateChange(callback)
+   Events: SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED, INITIAL_SESSION
+   Used in: Admin panel auth listener
+
+8. SIGN OUT
+   Function: supabase.auth.signOut()
+   Response: { error }
+   Used in: Admin logout
+
+============================================
+ADMIN FUNCTIONS
+============================================
+
+9. CHECK ADMIN ROLE
+   File: src/.../admin-C8ALViOD.js
+   Function: supabase.rpc('has_role', { _user_id, _role: 'admin' })
+   Response: boolean
+   Used in: Admin panel access control
+
+10. CLAIM ADMIN (First-time setup)
+    Function: supabase.rpc('claim_admin_if_none')
+    Response: { ok: boolean, error: string }
+    Used in: First admin account setup
+
+============================================
+LICENSE MANAGEMENT (Admin)
+============================================
+
+11. GET ALL LICENSES
+    Function: supabase.from('licenses').select('*').order('created_at', { ascending: false })
+    Response: { data: License[], error }
+    Table columns: id, license_key, user_name, tier, status, expiry_date, device_ids, device_limit, activated_at, last_active_device, last_active_at, created_at
+
+12. CREATE LICENSE
+    Function: supabase.from('licenses').insert({
+      license_key: "XXXX-XXXX-XXXX-XXXX",
+      user_name: "string",
+      device_limit: 1|2|5|10|0,
+      expiry_date: "ISO_DATE" | null,
+      status: "active"
+    })
+    Response: { error }
+    Used in: Admin panel "Create New License"
+
+13. UPDATE LICENSE
+    Function: supabase.from('licenses').update(data).eq('id', licenseId)
+    Data options:
+      - { tier: "pro_max" }  → Upgrade
+      - { tier: "standard" } → Downgrade
+      - { status: "active" } → Activate
+      - { status: "expired" } → Deactivate
+      - { status: "blocked" } → Block
+      - { device_ids: [] } → Reset devices
+    Response: { error }
+
+14. DELETE LICENSE
+    Function: supabase.from('licenses').delete().eq('id', licenseId)
+    Response: { error }
+
+============================================
+PRO MAX UPGRADE REQUESTS
+============================================
+
+15. GET ALL REQUESTS
+    Function: supabase.from('pro_max_requests').select('*').order('created_at', { ascending: false })
+    Response: { data: ProMaxRequest[], error }
+    Table columns: id, license_key, user_name, email, telegram_username, trader_id, screenshot_url, status, created_at
+
+16. APPROVE REQUEST
+    Function: supabase.rpc('approve_pro_max_request', { p_request_id })
+    Response: { data: { ok: boolean, error: string }, error }
+    Used in: Admin panel approve button
+
+17. REJECT REQUEST
+    Function: supabase.rpc('reject_pro_max_request', { p_request_id })
+    Response: { data: { ok: boolean, error: string }, error }
+    Used in: Admin panel reject button
+
+18. DELETE REQUEST
+    Function: supabase.from('pro_max_requests').delete().eq('id', requestId)
+    Response: { error }
+
+19. UPLOAD SCREENSHOT
+    Function: supabase.storage.from('promax-screenshots').upload(filename, file)
+    Response: { data: { path }, error }
+    Used in: PRO MAX upgrade form
+
+20. GET SCREENSHOT URL
+    Function: supabase.storage.from('promax-screenshots').createSignedUrl(path, 1800)
+    Response: { data: { signedUrl }, error }
+    Used in: Admin panel view screenshot
+
+============================================
+DASHBOARD DATA
+============================================
+
+21. GET SIGNALS
+    Function: supabase.from('signals').select('*').order('created_at', { ascending: false }).limit(10)
+    Response: { data: Signal[], error }
+    Used in: Dashboard signals list
+
+22. GET USER PERFORMANCE
+    Function: supabase.from('performance').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).single()
+    Response: { data: Performance, error }
+    Used in: Dashboard win rate display
+
+23. GET USER HISTORY
+    Function: supabase.from('history').select('*, signals(*)').eq('user_id', userId).order('created_at', { ascending: false }).limit(50)
+    Response: { data: History[], error }
+    Used in: History page
+
+============================================
+ANALYTICS
+============================================
+
+24. PAGE HIT TRACKING
+    Function: Tinybird.trackEvent('page_hit', payload)
+    Payload: { user-agent, locale, location, referrer, pathname, href }
+    Used in: Every page load
+
+25. WEB VITALS
+    Function: Tinybird.trackEvent('web_vital', payload)
+    Payload: { name, value, delta, rating, id, navigationType, pathname, href }
+    Metrics: FCP, CLS, INP, LCP, TTFB
+    Used in: Performance monitoring
+
